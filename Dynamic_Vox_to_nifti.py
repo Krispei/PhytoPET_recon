@@ -3,9 +3,9 @@ import nibabel as nib
 import os
 
 # Inputs
-directory = 'SummerPHYTOPET/'
-project = '07212025/'
-folder = '07212025_Dyn_5min_vox/'
+directory = '09192025/'
+project = ''
+folder = '09192025_Dyn_5min_vox/'
 
 # Original data shape in file (Z, Y, X)
 original_shape = (100, 300, 300)
@@ -28,7 +28,7 @@ affine = np.array([
 
 nifti_data_folder_name = directory + project + folder
 
-outFolder_name = "07212025_Dyn_5min_nii/"
+outFolder_name = "09182025_Dyn_5min_nii/"
 
 os.mkdir(directory + outFolder_name)
 

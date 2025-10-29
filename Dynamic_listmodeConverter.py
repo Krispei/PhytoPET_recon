@@ -175,7 +175,7 @@ def save_selected_keys_to_ascii_chunked(file_path, keys_of_interest, directory, 
     
     #listmode Output goes into this folder
     folder_name = project[:-1] + f"_Dyn_{time}min_lm/"
-    det_file_path = directory + 'NewRingD162.d.txt'
+    det_file_path = 'NewRingD162.d.txt'
 
     #Get the full paths
     folder_path = directory + folder_name
@@ -264,9 +264,9 @@ def save_selected_keys_to_ascii_chunked(file_path, keys_of_interest, directory, 
 
 def main():
 
-    Directory = 'SummerPHYTOPET/'
-    project = '07222025/'
-    raw_data_file = 'Plant_raw_07222025.E20..nCOT.RS.mat'
+    Directory = '09192025/'
+    project = ''
+    raw_data_file = 'Plant_raw_09192025_3_56pm.E20..nCOT.RS.mat'
     time_chunks = 5
 
     coin_file = Directory + project + raw_data_file

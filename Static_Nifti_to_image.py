@@ -4,9 +4,9 @@ import numpy as np
 from matplotlib.widgets import Slider, Button
 import tifffile
 
-directory = 'SummerPHYTOPET/'
-Project = 'drive-download-20250725T000154Z-1-001/'
-File = "Plant_raw_data_St_10_40_030(3).nii"
+directory = '09182025/'
+Project = ''
+File = "Plant_raw_noglucose_07212025_100min_normAll_0_no_tof_itr40.nii"
 path = directory + Project + File  # Replace with the actual path to your .nii file
 #Jul1_plant_glucose_normAll_1_no_tof_itr50.nii
 Nifti_img  = nib.load(path)

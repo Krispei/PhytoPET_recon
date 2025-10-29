@@ -2,22 +2,22 @@ import numpy as np
 import nibabel as nib
 
 # Inputs
-Directory = 'SummerPHYTOPET/'
-Project = 'james/'
+Directory = '09182025/'
+Project = ''
 Vox_folder = ''
 
-file = "Hoffman_PET_normAll_1_tof_itr15.vox"
+file = "Plant_raw_noglucose_07212025_100min_normAll_0_no_tof_itr40.vox"
 
 vox_path = Directory + Project + Vox_folder + file
 nifti_path = Directory + Project + file[:-4] + '.nii'
 # Original data shape in file (Z, Y, X)
-original_shape = (350, 350, 350)
+original_shape = (100, 300, 300)
 dtype = np.float32
 
 # Voxel sizes in mm (you can change these to your actual voxel spacing)
-voxel_size_x = 1
-voxel_size_y = 1
-voxel_size_z = 1
+voxel_size_x = 0.5
+voxel_size_y = 0.5
+voxel_size_z = 0.5
 
 # Step 1: Load and reshape raw data
 vox_data = np.fromfile(vox_path, dtype=dtype).reshape(original_shape)
