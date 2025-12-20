@@ -6,6 +6,7 @@ import os
 import shutil
 import matplotlib.pyplot as plt
 from itertools import islice
+from pathlib import Path
 
 def getDetVectors(det_file):
     det_vectors = np.loadtxt(det_file, dtype=float, delimiter=',')
@@ -169,20 +170,19 @@ def processCoins(output_file, coin_batch, O_vs, H_vs, V_vs):
     print("Process complete.")
     return 0
 
-def save_selected_keys_to_ascii_chunked(file_path, keys_of_interest, directory, project, time, time_stamp = 2000):
+def save_selected_keys_to_ascii_chunked(ID, file_path, keys_of_interest, time, geometry_path):
 
     #Chnage this to where the detector file and input data is
     
     #listmode Output goes into this folder
-    folder_name = project[:-1] + f"_Dyn_{time}min_lm/"
-    det_file_path = 'NewRingD162.d.txt'
+
+    out_folder_path = str(Path(file_path).parent) + "/" + f"{ID}_dyn_{time}min_lm/"
 
     #Get the full paths
-    folder_path = directory + folder_name
 
     # -------Load detector file-------
 
-    O_vs, H_vs, V_vs = getDetVectors(det_file_path)
+    O_vs, H_vs, V_vs = getDetVectors(geometry_path)
 
 
     with h5py.File(file_path, 'r') as f:
@@ -195,33 +195,34 @@ def save_selected_keys_to_ascii_chunked(file_path, keys_of_interest, directory, 
 
         all_key_data = {key: f[key][0, :] for key in keys_of_interest}
 
+        time_stamp = time * 60000
         start_indx = 0
         end_indx = 0
         i = all_key_data["t"][end_indx]
-        time_segments_processed = i//time_stamp
+        time_segments_processed = i// time_stamp
         chunks_processed = 0
         
 
         # -------Create Folder----------
 
         #tries deleting the folder
-        if os.path.exists(folder_path):
+        if os.path.exists(out_folder_path):
             try:
-                shutil.rmtree(folder_path)
-                print(f"Folder '{folder_name}' and its contents deleted successfully.")
+                shutil.rmtree(out_folder_path)
+                print(f"Folder '{out_folder_path}' and its contents deleted successfully.")
             except OSError as e:
                 print(f"Error: {e}")
         else:
-            print(f"Folder '{folder_name}' does not exist.")
+            print(f"Folder '{out_folder_path}' does not exist.")
 
         # Create the directory
         try:
-            os.mkdir(folder_path)
-            print(f"Directory '{folder_name}' created successfully.")
+            os.mkdir(out_folder_path)
+            print(f"Directory '{out_folder_path}' created successfully.")
         except FileExistsError:
-            print(f"Directory '{folder_name}' already exists.")
+            print(f"Directory '{out_folder_path}' already exists.")
         except PermissionError:
-            print(f"Permission denied: Unable to create '{folder_name}'.")
+            print(f"Permission denied: Unable to create '{out_folder_path}'.")
         except Exception as e:
             print(f"An error occurred: {e}")
 
@@ -244,7 +245,7 @@ def save_selected_keys_to_ascii_chunked(file_path, keys_of_interest, directory, 
                     chunk_array[:, key_idx] = chunk_raw[key][:].flatten()
 
 
-                output_file = directory + folder_name + f'Plant_raw_noglucose_07212025_{chunks_processed*(time_stamp//60000)}min.lm'
+                output_file = out_folder_path + f"{chunks_processed*(time_stamp//60000)}min.lm"
                 
                 processCoins(output_file, chunk_array, O_vs, H_vs, V_vs)
 
@@ -264,33 +265,18 @@ def save_selected_keys_to_ascii_chunked(file_path, keys_of_interest, directory, 
 
 def main():
 
-    Directory = '09192025/'
-    project = ''
-    raw_data_file = 'Plant_raw_09192025_3_56pm.E20..nCOT.RS.mat'
-    time_chunks = 5
+    ID = '06252025'
+    RAW_DATA_PATH = "/Users/wonupark/Desktop/PhytoPET/06252025/Plant_PET_data_06252025.E20..nCOT.RS.mat"
+    DET_GEOMETRY_PATH = "/Users/wonupark/Desktop/PhytoPET/scripts/NewRingD162.d.txt"
+    TIME_BINS = 3
 
-    coin_file = Directory + project + raw_data_file
+    time_chunks = 3
 
     keys_of_interest = ['x1', 'y1', 'p1', 'x2', 'y2', 'p2', 'RA', 't']
 
-    save_selected_keys_to_ascii_chunked(coin_file, keys_of_interest, Directory, project, time_chunks, time_stamp=300000)
+    save_selected_keys_to_ascii_chunked(ID, RAW_DATA_PATH, keys_of_interest, TIME_BINS, DET_GEOMETRY_PATH)
 
     #Remove files under 20kb
-
-    #Folder
-    Out_Folder = project[:-1] + f"_Dyn_{time_chunks}min_lm/"
-    
-    #Size Limit
-    size_limit = 50 * 1024
-
-    for filename in os.listdir(Directory + Out_Folder):
-        print(f"{filename} {os.path.getsize( Directory + Out_Folder + filename )}")
-        if (os.path.getsize( Directory + Out_Folder + filename ) <= size_limit):
-
-            os.remove( Directory + Out_Folder + filename )
-
-            print(f"File '{ Directory + Out_Folder + filename }' deleted successfully.")
-
 
 if __name__ == "__main__":
 
