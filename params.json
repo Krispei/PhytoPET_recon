@@ -1,15 +1,15 @@
 {
-  "input_lm_folder": "/Users/wonupark/Desktop/Stanford/PhytoPET/06242025/06242025_dyn_3min_lm",
+  "input_lm_folder": "C:\\Users\\Krisps\\PHYTOPet\\06242025\\06242025_dyn_3min_lm",
   "lm_file_pattern": "*.lm",  
   
-  "output_dir": "/Users/wonupark/Desktop/Stanford/PhytoPET/06242025/06242025_dyn_3min_nii",
+  "output_dir": "C:\\Users\\Krisps\\PHYTOPet\\06242025\\06242025_dyn_3min_nii",
   "att_nifti_path": "E:\\LM\\uniform_attenuation_cylinder_mm.nii",
 
   "use_scatter": false,
   "scatter_npy_path": "E:\\LM\\scatter_per_event.npy",
   
   "build_norm_map": false,
-  "norm_npy_path": "/Users/wonupark/Desktop/PhytoPET/scripts/recon/CylinderTest_parallelproj2(1).npy",
+  "norm_npy_path": "C:\\Users\\Krisps\\PHYTOPet\\config_files\\CylinderTest_parallelproj2(1).npy",
   "num_iterations": 50,
   "num_subsets": 1,
 
