@@ -7,7 +7,7 @@ xp = np
 
 # ---------- Utility ----------
 def save_xp_as_nifti(xp_arr, voxel_size, out_path):
-    # Handle CPU/GPU agnostic saving
+
     if hasattr(xp_arr, 'get'):
         arr_cpu = xp_arr.get()
     else:

@@ -264,8 +264,8 @@ def save_selected_keys_to_ascii_chunked(ID, file_path, keys_of_interest, time, g
 def main():
 
     ID = '06242025'
-    RAW_DATA_PATH = "/Users/wonupark/Desktop/Stanford/PhytoPET/06242025/Plant_06242025.E20..nCOT.RS.mat"
-    DET_GEOMETRY_PATH = "/Users/wonupark/Desktop/Stanford/PhytoPET/scripts/NewRingD162.d.txt"
+    RAW_DATA_PATH = r"C:\Users\Krisps\PHYTOPet\06242025\Plant_06242025.E20..nCOT.RS.mat"
+    DET_GEOMETRY_PATH = r"C:\Users\Krisps\PHYTOPet\PhytoPET_recon\NewRingD162.d.txt"
     TIME_BINS = 3
 
 
