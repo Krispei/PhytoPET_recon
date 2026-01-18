@@ -1,7 +1,5 @@
 import numpy as np
 import h5py
-import scipy.io
-import time
 import os
 import shutil
 import matplotlib.pyplot as plt
@@ -265,12 +263,11 @@ def save_selected_keys_to_ascii_chunked(ID, file_path, keys_of_interest, time, g
 
 def main():
 
-    ID = '06252025'
-    RAW_DATA_PATH = "/Users/wonupark/Desktop/PhytoPET/06252025/Plant_PET_data_06252025.E20..nCOT.RS.mat"
-    DET_GEOMETRY_PATH = "/Users/wonupark/Desktop/PhytoPET/scripts/NewRingD162.d.txt"
+    ID = '06242025'
+    RAW_DATA_PATH = "/Users/wonupark/Desktop/Stanford/PhytoPET/06242025/Plant_06242025.E20..nCOT.RS.mat"
+    DET_GEOMETRY_PATH = "/Users/wonupark/Desktop/Stanford/PhytoPET/scripts/NewRingD162.d.txt"
     TIME_BINS = 3
 
-    time_chunks = 3
 
     keys_of_interest = ['x1', 'y1', 'p1', 'x2', 'y2', 'p2', 'RA', 't']
 

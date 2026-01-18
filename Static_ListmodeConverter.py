@@ -1,3 +1,5 @@
+"""
+
 import numpy as np
 import h5py
 import scipy.io
@@ -68,47 +70,6 @@ def getDetVectors(det_file):
 
     return O_vs, H_vs, V_vs
     
-
-
-def plotCoins(coin_pairs):
-
-
-    x1 = coin_pairs[:, 0]
-
-    y1 = coin_pairs[:, 1]
-
-    z1 = coin_pairs[:, 2]
-
-    x2 = coin_pairs[:, 5]
-
-    y2 = coin_pairs[:, 6]
-
-    z2 = coin_pairs[:, 7]
-    
-
-
-    ax = plt.axes(projection='3d') 
-
-    for i in range(0,len(x1),4):
-        ax.plot([x1[i], x2[i]], [y1[i], y2[i]], [z1[i], z2[i]], color='blue', linewidth = 0.3)
-
-
-    #ax.scatter(x1, y1, z1, color='r', alpha=0.8, s=3.0)
-
-    #ax.scatter(x2, y2, z2, color='g', alpha=0.8, s=3.0)
-
-    ax.set_xlabel('X')
-
-    ax.set_ylabel('Y')
-
-    ax.set_zlabel('Z')
-
-    ax.set_box_aspect(aspect=[2, 2, 0.5] , zoom=1.2)
-
-    plt.show()
-
-    return 0
-
     
 def rotate_lines_about_z(lines, thetas):
 
@@ -260,8 +221,6 @@ def processCoins(coin_file, det_file, output_file, xyz_shift, batch_size, N):
 
             coin_batch = coin_batch.astype(np.float32)
 
-            print(coin_batch)
-
             coin_batch.tofile(output_fID)
 
             # update user if at checknpoint            
@@ -294,16 +253,11 @@ def processCoins(coin_file, det_file, output_file, xyz_shift, batch_size, N):
 
 def main():
 
-    Directory = 'SummerPHYTOPET/'
+    Directory = '07162025/'
     Project = ''
-    matlab_raw_filename = 'Uniform_Cylinder_30mins_250UCi_4_14pm_rot30secc.E20..nCOT.RS.mat'
+    matlab_raw_filename = 'Plant_raw_data_St_10_40am.E20..nCOT.RS(1).mat'
     coin_file = Directory + Project + matlab_raw_filename
-    #Annulus_Only_260uCi_ST_1133am_rot4.E20..nCOT.RS.mat
-    #04182025_3PS_Fucdicials.E15..nCOT.RS.mat
-    #plant_glucose_PET_data_06262025.E20..nCOT.RS.mat
 
-    #Uniform_Cylinder_30mins_250UCi_4_14pm_rot30secc.E20..nCOT.RS.mat
-    #PS_2min_test_start_rot_30sec_1.E20..TB.nCOT.RS.mat
     output_file = Directory + 'Out.txt'
 
     keys_of_interest = ['x1', 'y1', 'p1', 'x2', 'y2', 'p2', 'RA']
@@ -315,9 +269,10 @@ def main():
     #Converting the coins into ascii files
     coin_file = Directory + "Out.txt"
 
-    det_file  = Directory + 'NewRingD162.d.txt'
+    det_file  = "/Users/wonupark/Desktop/PhytoPET/scripts/NewRingD162.d.txt"
 
-    output_file = Directory + Project + "Cylinder_norm" + ".lm"
+
+    output_file = Directory + matlab_raw_filename + ".lm"
     batch_size = 1000
     update_user_every_N_batches = 1000
     xyz_shift = [-21.5, -21.5, -21.5]
@@ -333,3 +288,133 @@ if __name__ == "__main__":
 
 
 
+"""
+
+import numpy as np
+import h5py
+import time
+import os
+
+def getDetVectors(det_file):
+    # Load all at once using float32 to match output precision
+    det_vectors = np.loadtxt(det_file, dtype=np.float32, delimiter=',')
+    
+    # Slice to get vectors (0::3 means start at 0, step by 3)
+    O_vs = det_vectors[0::3, :]
+    H_vs = det_vectors[1::3, :]
+    V_vs = det_vectors[2::3, :]
+    
+    return O_vs, H_vs, V_vs
+
+def process_chunk(chunk_data, O_vs, H_vs, V_vs):
+    """
+    Process a chunk of raw data entirely in memory.
+    chunk_data expected columns: [x1, y1, det1, x2, y2, det2, theta]
+    """
+    
+    # 1. Extract columns (using views to avoid copies where possible)
+    # The hardcoded '21.5' is the center shift from your original logic
+    h1 = chunk_data[:, 0][:, np.newaxis] - 21.5
+    v1 = chunk_data[:, 1][:, np.newaxis] - 21.5
+    d1 = chunk_data[:, 2].astype(int) - 1 # Adjust 1-based index to 0-based
+    
+    h2 = chunk_data[:, 3][:, np.newaxis] - 21.5
+    v2 = chunk_data[:, 4][:, np.newaxis] - 21.5
+    d2 = chunk_data[:, 5].astype(int) - 1
+    
+    thetas = chunk_data[:, 6]
+
+    # 2. Vectorized Geometry Calculation
+    # Fetch vectors for all events in this batch simultaneously
+    xyz1 = O_vs[d1] + (h1 * H_vs[d1]) + (v1 * V_vs[d1])
+    xyz2 = O_vs[d2] + (h2 * H_vs[d2]) + (v2 * V_vs[d2])
+
+    # 3. Rotation (Vectorized)
+    cos_t = np.cos(thetas)
+    sin_t = np.sin(thetas)
+
+    # Rotate Point 1
+    x1_raw, y1_raw, z1 = xyz1[:, 0], xyz1[:, 1], xyz1[:, 2]
+    x1_rot = x1_raw * cos_t - y1_raw * sin_t
+    y1_rot = x1_raw * sin_t + y1_raw * cos_t
+
+    # Rotate Point 2
+    x2_raw, y2_raw, z2 = xyz2[:, 0], xyz2[:, 1], xyz2[:, 2]
+    x2_rot = x2_raw * cos_t - y2_raw * sin_t
+    y2_rot = x2_raw * sin_t + y2_raw * cos_t
+
+    # 4. Construct Final Array (N x 10)
+    # Structure: [x1, y1, z1, 0, 0, x2, y2, z2, 0, 0]
+    num_events = len(thetas)
+    output_batch = np.zeros((num_events, 10), dtype=np.float32)
+    
+    output_batch[:, 0] = x1_rot
+    output_batch[:, 1] = y1_rot
+    output_batch[:, 2] = z1
+    # Cols 3,4 are zeros
+    output_batch[:, 5] = x2_rot
+    output_batch[:, 6] = y2_rot
+    output_batch[:, 7] = z2
+    # Cols 8,9 are zeros
+
+    return output_batch
+
+def main():
+    # --- Configuration ---
+    Directory = '07162025/'
+    matlab_raw_filename = 'Plant_349PM_raw.E20..nCOT.RS.mat'
+    det_filename = "/Users/wonupark/Desktop/PhytoPET/scripts/NewRingD162.d.txt"
+    
+    input_file = Directory + matlab_raw_filename
+    output_file = Directory + matlab_raw_filename + ".lm"
+    
+    # Keys corresponding to: h1, v1, det1, h2, v2, det2, theta
+    keys_of_interest = ['x1', 'y1', 'p1', 'x2', 'y2', 'p2', 'RA']
+    
+    BATCH_SIZE = 100000 # Increased from 1,000 to 100,000 for speed
+    
+    # --- Initialization ---
+    try:
+        os.remove(output_file)
+    except OSError:
+        pass
+
+    print("Loading detector geometry...")
+    O_vs, H_vs, V_vs = getDetVectors(det_filename)
+
+    tic = time.perf_counter()
+
+    # --- Main Pipeline ---
+    with h5py.File(input_file, 'r') as f, open(output_file, 'wb') as out_f:
+        
+        # Access datasets (pointers only, not reading yet)
+        datasets = [f[k] for k in keys_of_interest]
+        total_entries = datasets[0].shape[1]
+        
+        print(f"Total events to process: {total_entries:,}")
+        
+        for start_idx in range(0, total_entries, BATCH_SIZE):
+            end_idx = min(start_idx + BATCH_SIZE, total_entries)
+            
+            # 1. READ: Load a chunk of columns directly from HDF5
+            # Stack them into shape (N, 7)
+            # Note: We read [0, start:end] because your HDF5 shape is likely (1, N)
+            chunk_data = np.stack([d[0, start_idx:end_idx] for d in datasets], axis=1).astype(np.float32)
+            
+            # 2. PROCESS: Compute geometry and rotations in memory
+            processed_chunk = process_chunk(chunk_data, O_vs, H_vs, V_vs)
+            
+            # 3. WRITE: Append binary data to disk
+            processed_chunk.tofile(out_f)
+            
+            # Feedback
+            if (end_idx // BATCH_SIZE) % 5 == 0 or end_idx == total_entries:
+                toc = time.perf_counter()
+                elapsed_min = (toc - tic) / 60
+                percent = (end_idx / total_entries) * 100
+                print(f"Processed {end_idx:,}/{total_entries:,} ({percent:.1f}%) in {elapsed_min:.2f} min")
+
+    print("Process complete.")
+
+if __name__ == "__main__":
+    main()

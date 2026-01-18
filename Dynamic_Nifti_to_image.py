@@ -5,14 +5,14 @@ import os
 import glob
 
 
-input_dir = "07162025/0716025_pproj_3min_65mm_040itr" #input folder path goes here
-output_dir = "07162025/0716025_pproj_3min_65mm_040itr_Tiff" #output folder path goes here
+input_dir = "05132025/05132025_dyn_3min_pproj_40itr" #input folder path goes here
+output_dir = "05132025/05132025_dyn_3min_pproj_40itr_TIFF" #output folder path goes here
 
 sensitivity = 1
 threshold = 0
 
-volume_shape = (130,130,100)
-mask_radius = 50 #pixel radius 
+volume_shape = (120,120,100)
+mask_radius = 60 #pixel radius 
 
 def create_circular_mask(length, width, radius):
     Y, X = np.ogrid[:length, :width]

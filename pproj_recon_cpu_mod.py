@@ -3,9 +3,7 @@ import numpy as np
 import nibabel as nib
 import parallelproj
 
-# --- CPU CONFIGURATION ---
-xp = np  # Using CPU (numpy) backend
-# -------------------------
+xp = np  
 
 # ---------- Utility ----------
 def save_xp_as_nifti(xp_arr, voxel_size, out_path):

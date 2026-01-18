@@ -1,8 +1,8 @@
 {
-  "input_lm_folder": "/Users/wonupark/Desktop/PhytoPET/06252025/06252025_dyn_3min_lm/",
+  "input_lm_folder": "/Users/wonupark/Desktop/Stanford/PhytoPET/06242025/06242025_dyn_3min_lm",
   "lm_file_pattern": "*.lm",  
   
-  "output_dir": "/Users/wonupark/Desktop/PhytoPET/06252025/06252025_dyn_3min_nii",
+  "output_dir": "/Users/wonupark/Desktop/Stanford/PhytoPET/06242025/06242025_dyn_3min_nii",
   "att_nifti_path": "E:\\LM\\uniform_attenuation_cylinder_mm.nii",
 
   "use_scatter": false,
